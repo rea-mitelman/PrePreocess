@@ -1,0 +1,14 @@
+function sd=std_mem(x)
+
+if min(size(x))>1
+	error('this function works for vectors only')
+end
+
+n=length(x);
+avg=mean(x);
+
+for ii=1:n;
+	
+
+
+

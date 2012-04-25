@@ -1,0 +1,18 @@
+function stim_times = get_stim_times
+
+ex_AMstim=evalin('caller','exist(''AMstim'',''var'');');
+ex_AMstim_on = evalin('caller','exist(''AMstim_on'',''var'');');
+ex_StimTime = evalin('cexist('StimTime','var')
+if ex_AMstim
+    disp('Stimulation variable: AMstim (older format, AM-systems stimulator)');
+    stim_times=AMstim;
+elseif ex_AMstim_on 
+    disp('Stimulation variable: AMstim_on (newer format, AM-systems stimulator)');
+    stim_times=AMstim_on;
+elseif 
+    disp('Stimulation variable: StimTime (old format, Alpha-Omega stimulator)');
+    stim_times=StimTime;
+else
+    disp('No stimulations variable was found, make sure this file does not contain stimuli');
+    stim_times=[];
+end
