@@ -22,7 +22,7 @@ function varargout = Preproc_prompt(varargin)
 
 % Edit the above text to modify the response to help Preproc_prompt
 
-% Last Modified by GUIDE v2.5 09-Dec-2010 16:33:06
+% Last Modified by GUIDE v2.5 25-Apr-2012 15:47:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -90,7 +90,10 @@ else
 end
 
 
-out.org_art_dur=str2double(get(handles.org_art_dur,'String'));
+out.us_factor=str2double(get(handles.us_factor,'String'));
+out.art_end=str2double(get(handles.art_end,'String'));
+out.max_dead_time_dur=str2double(get(handles.max_dead_time_dur,'String'));
+out.do_lin_decay=get(handles.do_lin_decay,'Value');
 
 varargout{1} = out;
 close(gcf)
@@ -134,18 +137,18 @@ error('Abort by user')
 
 
 
-function org_art_dur_Callback(hObject, eventdata, handles)
-% hObject    handle to org_art_dur (see GCBO)
+function us_factor_Callback(hObject, eventdata, handles)
+% hObject    handle to us_factor (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of org_art_dur as text
-%        str2double(get(hObject,'String')) returns contents of org_art_dur as a double
+% Hints: get(hObject,'String') returns contents of us_factor as text
+%        str2double(get(hObject,'String')) returns contents of us_factor as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function varargout = org_art_dur_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to org_art_dur (see GCBO)
+function varargout = us_factor_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to us_factor (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -154,5 +157,60 @@ function varargout = org_art_dur_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-% out.org_art_dur=str2num(get(hObject,'String'));
+% out.us_factor=str2num(get(hObject,'String'));
 % varargout{1} = out;
+
+
+
+function art_end_Callback(hObject, eventdata, handles)
+% hObject    handle to art_end (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of art_end as text
+%        str2double(get(hObject,'String')) returns contents of art_end as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function art_end_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to art_end (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function max_dead_time_dur_Callback(hObject, eventdata, handles)
+% hObject    handle to max_dead_time_dur (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of max_dead_time_dur as text
+%        str2double(get(hObject,'String')) returns contents of max_dead_time_dur as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function max_dead_time_dur_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to max_dead_time_dur (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in do_lin_decay.
+function do_lin_decay_Callback(hObject, eventdata, handles)
+% hObject    handle to do_lin_decay (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of do_lin_decay
