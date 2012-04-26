@@ -1,4 +1,4 @@
-function TH_mat=get_thersh_per_subsess(home_dir,day_path,n_std,n_elects,do_art_rem)
+function TH_mat=get_thersh_per_subsess(home_dir,day_path,n_std,n_elects,do_art_rem,art_remove_options)
 % TH_mat=get_thersh_per_subsess(home_dir,day_path,n_std,n_elects)
 % returns a matrix of the threshold of each file in the folder, but the
 % threshold is calculated per subsession.
@@ -48,18 +48,21 @@ for i_ss=1:n_sess
 		for i_file=all_ss{i_ss}
 			full_file_name=sprintf('%s%s%03.0f%s',dir_base,file_base,i_file,'_wvf.mat');
 			if do_art_rem
-				stim_times=get_stim_times(full_file_name);
+				[stim_times stim_times_Fs]=get_stim_times(full_file_name);
 			else
-				stim_times=[];
+				stim_times=[]; stim_times_Fs=[];
 			end
 			if any(strcmp(who('-file',full_file_name),unit_names{u}))
 				load(full_file_name,unit_names{u},[unit_names{u} '_KHz'])
 				if do_art_rem
-					str2eval=['remove_stim_artifact(' unit_names{u} ' , ' unit_names{u} '_KHz , stim_times);' ];
-				else 
-					str2eval = unit_names{u};
+					%% Fix here!
+% 					str2eval=['remove_stim_artifact(' unit_names{u} ' , ' unit_names{u} '_KHz , stim_times,org_art_dur);' ];
+					data_vec=remove_artifact_advanced(eval(unit_names{u}), eval([unit_names{u} '_KHz']),stim_times, stim_times);
+
+				else
+					data_vec=eval(unit_names{u});
+
 				end
-				data_vec=eval(str2eval);
 				if ~exist('n','var')
 					n=length(data_vec);
 					avg=mean(data_vec);
@@ -86,7 +89,7 @@ for i_ss=1:n_sess
 		% 		TH_per_sess(:,u) = mean(data_vec) + [-1 1]' * (n_std*std_data);
 		this_TH=avg + [-1 1]' * (n_std*std_data);
 		if sign(prod(this_TH))==1
-			disp('Both upper and lower thersholds have the same sign. This is 
+			fprintf('Both upper and lower thersholds have the same sign.\nThis suggests the data is artificial\n')
 		else
 			TH_per_sess(:,u) = this_TH;
 		end
@@ -100,7 +103,7 @@ for i_ss=1:n_sess
 end
 
 
-function stim_times=get_stim_times(full_file_name)
+function [stim_times stim_times_Fs]=get_stim_times(full_file_name)
 i_=find(full_file_name=='_',1,'last');
 bhv_file_name=full_file_name;
 bhv_file_name(i_+1:i_+3)='bhv';
@@ -108,13 +111,15 @@ load (bhv_file_name)
 if exist('AMstim','var') %old format
 	disp('Stimulation variable: AMstim (older format, AM-systems stimulator)');
 	stim_times=AMstim; %#ok<*NASGU>
+	stim_times_Fs=AMstim_KHz;
 elseif exist('AMstim_on','var') %new format
 	disp('Stimulation variable: AMstim_on (newer format, AM-systems stimulator)');
 	stim_times=AMstim_on;
+	stim_times_Fs=AMstim_on_KHz;
 elseif exist('StimTime','var') %new format
 	disp('Stimulation variable: StimTime (old format, Alpha-Omega stimulator)');
 	stim_times=StimTime;
-	
+	stim_times_Fs=StimTime_KHz;
 else %stim file was not created, use empty
 	disp('No stimulations variable was found, make sure this file does not contain stimuli');
 	stim_times=[];

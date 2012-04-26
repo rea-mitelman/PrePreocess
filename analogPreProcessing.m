@@ -1,4 +1,4 @@
-function analogPreProcessing(home_dir,day_path,fstr,channels,TH_mode,mode,do_art_rem,TH_mat,org_art_dur) %#ok<INUSD>
+function analogPreProcessing(home_dir,day_path,fstr,channels,TH_mode,mode,do_art_rem,TH_mat,art_remove_options) %#ok<INUSD>
 % TH_mat is a matrix of thresholds with dimentions :
 % 2(lower&upper thresh) X number of electrodes
 
@@ -29,20 +29,22 @@ if do_art_rem
 	if exist('AMstim','var') %old format
 		disp('Stimulation variable: AMstim (older format, AM-systems stimulator)');
 		stim_times=AMstim; %#ok<*NASGU>
+		stim_times_Fs=AMstim_KHz;
 	elseif exist('AMstim_on','var') %new format
 		disp('Stimulation variable: AMstim_on (newer format, AM-systems stimulator)');
 		stim_times=AMstim_on;
+		stim_times_Fs=AMstim_on_KHz;
 	elseif exist('StimTime','var') %new format
 		disp('Stimulation variable: StimTime (old format, Alpha-Omega stimulator)');
 		stim_times=StimTime;
-		
+		stim_times_Fs=StimTime_KHz;
 	else %stim file was not created, use empty
 		disp('No stimulations variable was found, make sure this file does not contain stimuli');
 		stim_times=[];
 	end
 
 else % If the user prompts no artifact removal, the stim times is empty.
-	stim_times=[];
+	stim_times=[];stim_times_Fs=[];
 	disp('Not removing artifacts by user request');
 end
 % th_buf = sprintf('%s\\param_sp\\TH',parent_dir);
@@ -103,7 +105,7 @@ for j = channels
 		%     eval(['[TDATA_MCP_' retstr ' TIME_MCP_' retstr '] = extract(temp, ' num2str(TH(j)) ',' datastr '_KHz);']);
 		%         eval(['[TDATA_MCP_' retstr ' TIME_MCP_' retstr '] = extract(temp, ' num2str(TH(j)) ',' datastr '_KHz,[],[],stim_times);']); % <= changed by Rea, 16-8-10, stimulus artifact removal
 		str2eval=['[TDATA_MCP_' retstr ' TIME_MCP_' retstr '] ='...
-			' extract(temp, TH_mat(:,j) ,' datastr '_KHz,[],' '''' 'D2_fixed_TH_per_subsess' '''' ',stim_times,org_art_dur);'];
+			' extract(temp, TH_mat(:,j) ,' datastr '_KHz,[],' '''' 'D2_fixed_TH_per_subsess' '''' ',stim_times,stim_times_Fs, art_remove_options);'];
 		eval(str2eval); 
 		datastring=datastr;
         indx=j;

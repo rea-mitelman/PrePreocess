@@ -24,11 +24,15 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %
 
 uioptions = Preproc_prompt;
-if isempty(uioptions.org_art_dur) || isnan(uioptions.org_art_dur) || uioptions.org_art_dur < 0
-	disp('impropper artifact value, using 3 msec')
-	org_art_dur=3;
-else
-	org_art_dur=uioptions.org_art_dur;
+if uioptions.Rem_Stim_Art && ~exist('remove_artifact_advanced')
+	error('The function remove_artifact_advanced was not found in the path. Please make sure it is in the path and re-run the program')
+end
+if isempty(uioptions.art_end) || isnan(uioptions.art_end) || uioptions.art_end < 0 ...
+		|| isempty(uioptions.max_dead_time_dur) || isnan(uioptions.max_dead_time_dur) || uioptions.max_dead_time_dur < 0 ...
+		|| isempty(uioptions.us_factor) || isnan(uioptions.us_factor) || uioptions.us_factor <= 0 || uioptions.us_factor~=round(uioptions.us_factor)
+	
+	error('Error in input parameters')
+
 end
 
 %setting thresholds
@@ -103,7 +107,7 @@ if strcmp(q,'Yes')
 		
 % 		calculating the threshold per subsession:
 		n_std_TH=3.5;
-		TH_mat = get_thersh_per_subsess(home_dir,day_path,n_std_TH,n_elecs,uioptions.Rem_Stim_Art,org_art_dur);
+		TH_mat = get_thersh_per_subsess(home_dir,day_path,n_std_TH,n_elecs,uioptions.Rem_Stim_Art,uioptions);
 	
 		
 		for k=1:size(d,1)
@@ -113,7 +117,7 @@ if strcmp(q,'Yes')
 			i_=find(file_name=='_',1,'first');
 			file_num=str2num(file_name(i_-3:i_-1)); %#ok<*ST2NM>
 			
-			analogPreProcessing(home_dir,day_path,d(k).name,1:n_elecs,0,mode,uioptions.Rem_Stim_Art,TH_mat(:,:,file_num),org_art_dur);
+			analogPreProcessing(home_dir,day_path,d(k).name,1:n_elecs,0,mode,uioptions.Rem_Stim_Art,TH_mat(:,:,file_num),uioptions);
 		end
 	end
 elseif strcmp(q,'Abort')

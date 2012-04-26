@@ -22,7 +22,7 @@ function varargout = Preproc_prompt(varargin)
 
 % Edit the above text to modify the response to help Preproc_prompt
 
-% Last Modified by GUIDE v2.5 25-Apr-2012 15:47:51
+% Last Modified by GUIDE v2.5 25-Apr-2012 23:04:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -214,3 +214,13 @@ function do_lin_decay_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of do_lin_decay
+
+
+% --- Executes on key press with focus on pushbutton_proceed and none of its controls.
+function pushbutton_proceed_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton_proceed (see GCBO)
+% eventdata  structure with the following fields (see UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)

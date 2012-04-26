@@ -31,7 +31,7 @@
 % 16-aug-10 adding the possibility of stimulus artifact removal
 
 
-function [Y, T] = extract(x,TH,Fs,graphics,mode,stim_times,org_art_dur)
+function [Y, T] = extract(x,TH,Fs,graphics,mode,stim_times,stim_times_Fs,art_remove_options)
 
 if nargin<2 || isempty(TH), TH = 4.5; end                        % standard deviations
 if nargin<3 || isempty(Fs), Fs = 25; end                         % sampling rate in KHz
@@ -74,8 +74,9 @@ newspike = 0;
 
 
 % Y = []; Tsam = []; pre-allocating to save time
-
-x = remove_stim_artifact(x,Fs,stim_times,org_art_dur);
+%% Fix here!
+x = remove_artifact_advanced(x,Fs,stim_times,stim_times_Fs,art_remove_options.us_factor, art_remove_options.art_end, art_remove_options.max_dead_time_dur, art_remove_options.do_lin_decay);
+%%
 x2 = x(K+1:end-L) - (x(1:end-L-K) + x(1+L+K:end))/2;            % approx. x''
 switch mode
     case 'D2_only'

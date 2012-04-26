@@ -1,10 +1,10 @@
-function TH_mat=get_thersh_per_subsess(home_dir,day_path,n_std,n_elects,do_art_rem,org_art_dur)
+function TH_mat=get_thersh_per_subsess(home_dir,day_path,n_std,n_elects,do_art_rem,art_remove_options)
 % TH_mat=get_thersh_per_subsess(home_dir,day_path,n_std,n_elects)
 % returns a matrix of the threshold of each file in the folder, but the
 % threshold is calculated per subsession.
 % TH_mat has the following dimentions:
 % (2 - lower&upper thresh) X (number of electrodes) X (number of files)
-
+global all_clean_data
 load([home_dir '\' day_path '\info\' day_path '_param']);
 % SESSparam.SubSess.Files;
 all_ss=cell(length(SESSparam.SubSess),1);
@@ -41,6 +41,7 @@ end
 n_sess=length(all_ss);
 % TH_per_sess=zeros(n_sess,2,max(elects));
 TH_mat=zeros(2,n_elects,max(all_files_num));
+all_clean_data=cell(max(all_files_num),1);
 for i_ss=1:n_sess
 	TH_per_sess=zeros(2,n_elects);
 	for u=1:n_elects
@@ -48,18 +49,20 @@ for i_ss=1:n_sess
 		for i_file=all_ss{i_ss}
 			full_file_name=sprintf('%s%s%03.0f%s',dir_base,file_base,i_file,'_wvf.mat');
 			if do_art_rem
-				stim_times=get_stim_times(full_file_name);
+				[stim_times stim_times_Fs]=get_stim_times(full_file_name);
 			else
-				stim_times=[];
+				stim_times=[]; stim_times_Fs=[];
 			end
 			if any(strcmp(who('-file',full_file_name),unit_names{u}))
 				load(full_file_name,unit_names{u},[unit_names{u} '_KHz'])
 				if do_art_rem
-					str2eval=['remove_stim_artifact(' unit_names{u} ' , ' unit_names{u} '_KHz , stim_times,org_art_dur);' ];
-				else 
-					str2eval = unit_names{u};
+					data_vec=remove_artifact_advanced(eval(unit_names{u}), eval([unit_names{u} '_KHz']) ,stim_times, stim_times_Fs,...
+						art_remove_options.us_factor, art_remove_options.art_end, art_remove_options.max_dead_time_dur, art_remove_options.do_lin_decay);
+					all_clean_data{i_file}=data_vec;
+				else
+					data_vec=eval(unit_names{u});
+
 				end
-				data_vec=eval(str2eval);
 				if ~exist('n','var')
 					n=length(data_vec);
 					avg=mean(data_vec);
@@ -100,7 +103,7 @@ for i_ss=1:n_sess
 end
 
 
-function stim_times=get_stim_times(full_file_name)
+function [stim_times stim_times_Fs]=get_stim_times(full_file_name)
 i_=find(full_file_name=='_',1,'last');
 bhv_file_name=full_file_name;
 bhv_file_name(i_+1:i_+3)='bhv';
@@ -108,13 +111,15 @@ load (bhv_file_name)
 if exist('AMstim','var') %old format
 	disp('Stimulation variable: AMstim (older format, AM-systems stimulator)');
 	stim_times=AMstim; %#ok<*NASGU>
+	stim_times_Fs=AMstim_KHz;
 elseif exist('AMstim_on','var') %new format
 	disp('Stimulation variable: AMstim_on (newer format, AM-systems stimulator)');
 	stim_times=AMstim_on;
+	stim_times_Fs=AMstim_on_KHz;
 elseif exist('StimTime','var') %new format
 	disp('Stimulation variable: StimTime (old format, Alpha-Omega stimulator)');
 	stim_times=StimTime;
-	
+	stim_times_Fs=StimTime_KHz;
 else %stim file was not created, use empty
 	disp('No stimulations variable was found, make sure this file does not contain stimuli');
 	stim_times=[];

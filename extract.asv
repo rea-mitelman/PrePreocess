@@ -31,7 +31,7 @@
 % 16-aug-10 adding the possibility of stimulus artifact removal
 
 
-function [Y, T] = extract(x,TH,Fs,graphics,mode,stim_times)
+function [Y, T] = extract(x,TH,Fs,graphics,mode,stim_times,art_remove_options)
 
 if nargin<2 || isempty(TH), TH = 4.5; end                        % standard deviations
 if nargin<3 || isempty(Fs), Fs = 25; end                         % sampling rate in KHz
@@ -74,8 +74,9 @@ newspike = 0;
 
 
 % Y = []; Tsam = []; pre-allocating to save time
-
-x = remove_stim_artifact(x,Fs,stim_times);
+%% Fix here!
+x = remove_artifact_advanced(x,Fs,stim_times,bla,art_remove_options.us_factor, art_remove_options.art_end, art_remove_options.max_dead_time_dur, art_remove_options.);
+%%
 x2 = x(K+1:end-L) - (x(1:end-L-K) + x(1+L+K:end))/2;            % approx. x''
 switch mode
     case 'D2_only'
@@ -89,10 +90,19 @@ switch mode
 end
 pts = sortrows([parse(find(x2<mmx2(1))); parse(find(x2>mmx2(2)))]);
 j = 0; spv = 0; spt = 0;
-Y=NaN(S,size(pts,1));Tsam=NaN(1,size(pts,1)); %pre-allocating to the maximal size to save time...
+try 
+	Y=NaN(S,size(pts,1));Tsam=NaN(1,size(pts,1)); %pre-allocating to the maximal size to save time...
+catch ex
+	disp('There might be an Out of memory problem here. Avoiding pre-allocation')
+end
 for i = 1:size(pts,1) %rows
     ptv = x2(pts(i,1):pts(i,2));                                % potential values
     sgn = unique(sign(ptv));                                    % for negative TH crossing
+	if length(sgn)>1
+		sgn=1;
+		fprintf('This possible error suggests the data is artificial')
+		keyboard
+	end
     spv_new = max(sgn*ptv);                                     % sometimes already clipped
 %     spt_new = pts(i,1)-1+min(find(ptv==sgn*spv_new));           % time of maximal value
     spt_new = pts(i,1)-1+find(ptv==sgn*spv_new, 1 );           % time of maximal value
@@ -113,7 +123,11 @@ for i = 1:size(pts,1) %rows
 end
 
 
-last_noNaN_i=find(~isnan(Y),1,'last')
+last_noNaN_i=find(~isnan(Tsam),1,'last');
+Y=Y(:,1:last_noNaN_i);Tsam=Tsam(1:last_noNaN_i); %... and cutting Y and Tsam to the actual size
+if any(isnan([Y(:) ; Tsam(:)]))
+	fprintf('\nWarning:\n==========\nNaN values in the spikes matrix, this may cause problems downstream\n')
+end
 % Y=Y(:,1:j);Tsam=Tsam(1:j); %... and cutting Y and Tsam to the actual size
 % if ~isempty(Tsam) && isnan(Tsam(end)) %for the cases when j is larger than the actual data size by 1
 % 	Tsam=Tsam(1:end-1);

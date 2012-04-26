@@ -10,7 +10,8 @@ for ifile=files_vec
 		try
 			extracts = [extracts upsamp_spk_shapes];
 			if any(isnan(upsamp_spk_shapes(:)))
-				fprintf('NaN values found in file %1.0f',
+				fprintf('NaN values found in file %s\n',flist(ifile).fnm)
+			end
 		catch err
 			if any(strcmp(err.identifier,{'MATLAB:pmaxsize','MATLAB:nomem'}))
 				fprintf('Due to the huge number of spikes, only randomly chosen %1.0f files (out of %1.0f) were used to caculate PCs\n'...
@@ -24,6 +25,7 @@ for ifile=files_vec
 			
 	end
 end
+
 
 no_NaN_cols=~isnan(extracts(1,:));
 if sum(~no_NaN_cols)>0
@@ -56,7 +58,7 @@ catch exception
 		ixs=ixs(1:round(l/2));
 		extracts = extracts(:,ixs);
 		pcvec=get_pcvec(i_rec);
-	else
-		rethrow(exception)
-	end
+% 	else
+% 		rethrow(exception)
+% 	end
 end
