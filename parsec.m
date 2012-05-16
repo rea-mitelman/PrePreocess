@@ -1,7 +1,7 @@
 function [bg en]=parsec(v)
 % Matlab verison of the C file below. This was checked and found to be
 % give identical outputs.
-if ~isnumeric(v) || size(v,1)~=1 || size(v,2)==1
+if ~isnumeric(v) || size(v,1)~=1 
     error('input has to be row numeric vector')
 end
 bg=[];en=[];
