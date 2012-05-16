@@ -45,7 +45,9 @@ global extracts
 try 
 	[~,~,pcvec]=svds(extracts',3);
 	if i_rec>0
-		fprintf('SVD succeeded with 1/%1.0f of the spikes\n',2^i_rec);
+		fprintf('SVD succeeded with %1.0f spikes, which are approximately 1/%1.0f of the original set,\n',size(extracts,2),2^i_rec);
+	else
+		fprintf('SVD succeeded with the entire spikes population: %1.0f spikes\n',size(extracts,2));
 	end
 catch exception
 	getReport(exception)
