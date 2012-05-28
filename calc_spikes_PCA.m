@@ -32,6 +32,17 @@ if sum(~no_NaN_cols)>0
 		fprintf('\nWarning:\n==========\nNaN values in the spikes matrix - Removed to prevent problems \n')
 		extracts=extracts(:,no_NaN_cols);
 end
+%To save time, up to max_n_spikes spikes are taken.
+max_n_spikes=1e5;
+n_spikes=size(extracts,2);
+if n_spikes>1e5
+	fprintf('Taking only %1.0f randomly chosen out of %1.0f spikes in the current subsession\n', max_n_spikes, n_spikes)
+	ixs=randperm(n_spikes);
+	ixs=ixs(1:max_n_spikes);
+	extracts = extracts(:,ixs);
+end
+
+
 pcvec=get_pcvec(0); %#ok<NASGU>
 for i=1:length(flist)
 	pos=findstr(flist(i).fnm,'pcs');
