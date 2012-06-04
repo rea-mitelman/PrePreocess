@@ -33,9 +33,9 @@ if sum(~no_NaN_cols)>0
 		extracts=extracts(:,no_NaN_cols);
 end
 %To save time, up to max_n_spikes spikes are taken.
-max_n_spikes=1e5;
+max_n_spikes=2.5e5;
 n_spikes=size(extracts,2);
-if n_spikes>1e5
+if n_spikes>max_n_spikes
 	fprintf('Taking only %1.0f randomly chosen out of %1.0f spikes in the current subsession\n', max_n_spikes, n_spikes)
 	ixs=randperm(n_spikes);
 	ixs=ixs(1:max_n_spikes);
